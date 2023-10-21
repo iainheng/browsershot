@@ -2,6 +2,7 @@
 
 namespace Spatie\Browsershot;
 
+use Pest\Support\Str;
 use Spatie\Browsershot\Exceptions\CouldNotTakeBrowsershot;
 use Spatie\Browsershot\Exceptions\ElementNotFound;
 use Spatie\Browsershot\Exceptions\FileDoesNotExistException;
@@ -897,6 +898,16 @@ class Browsershot
         $this->temporaryHtmlDirectory = (new TemporaryDirectory($this->tempPath))->create();
 
         file_put_contents($temporaryHtmlFile = $this->temporaryHtmlDirectory->path('index.html'), $this->html);
+
+        if (stripos($temporaryHtmlFile, '/mnt/') === 0) {
+            $temporaryHtmlFile = str_replace('/mnt/', '', $temporaryHtmlFile);
+
+            $pos = stripos($temporaryHtmlFile, '/');
+
+            if ($pos !== false) {
+                $temporaryHtmlFile = substr_replace($temporaryHtmlFile, ':/', $pos, 1);
+            }
+        }
 
         return "file://{$temporaryHtmlFile}";
     }
